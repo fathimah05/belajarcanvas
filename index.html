@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSGame</title>
+</head>
+<body>
+    <canvas id="world" width="500" height="400" style="border: 1px solid black;"></canvas>
+
+    <script>
+        // inisialisasi canvas
+        let canvas = document.getElementById('world');
+        let context = canvas.getContext('2d');
+
+        // Import Assets
+        let bird = new Image();
+        bird.src = "bird2.png";
+            
+        let ack = new Audio();
+        ack.src = "ack.mp3";
+        ack.load();
+
+        let medkit = new Audio();
+        medkit.src = "tuing.mp3";
+        medkit.load();
+
+        // state
+            let g = 0;
+            let xBird = 0;
+            let yBird = canvas.height/2-100;
+            let wBird = 50;
+            let hBird = 50;
+            let score = 0;
+
+        window.addEventListener("keydown",function(){
+            if(event.keyCode == 32){
+                g = g - 15;
+
+                ack.pause();
+                ack.currentTime = 0;
+                ack.play();
+            }
+        })
+        
+        let lebarPipa = 50;
+        let batasAman = 150;
+        let tinggiPipaAtas = 100;
+        let tinggiPipaBawah = canvas.height - batasAman - tinggiPipaAtas;
+        let kecepatanPipa = 2;
+        let xPipa = canvas.width - lebarPipa;
+        let yPipaAtas = 0;
+        let yPipaBawah = tinggiPipaAtas + batasAman;
+
+        // Background
+        context.fillStyle = "lightblue";
+        context.fillRect(0,0,canvas.width,canvas.height);
+
+        function checkCollision(){
+            if(xBird + wBird >= xPipa && xBird <= xPipa + lebarPipa &&(yBird <= tinggiPipaAtas || yBird + hBird >= yPipaBawah)){
+                gameOver();
+            }
+        }
+
+        function gameOver(){
+            alert("Game Over | Score: " + score);
+            g = 0;
+            xBird = 0;
+            yBird = canvas.width/2 - 200;
+            wBird = 50;
+            hBird = 50;
+            xPipa = canvas.width - lebarPipa;
+
+            medkit.pause();
+            medkit.currentTime = 0;
+            medkit.play();
+        }
+        // Membuat FPS
+        window.setInterval(function(){
+            context.clearRect(0,0,canvas.width,canvas.height);
+            context.fillStyle = "lightblue";
+            context.fillRect(0,0,canvas.width,canvas.height);
+
+            g = g + 1;
+
+            context.drawImage(bird, xBird, yBird, wBird, hBird);
+
+            yBird = yBird + g;
+
+            if(yBird >= canvas.height - hBird){
+                gameOver();
+            }
+            if(yBird < 0){
+                yBird = 0;
+                g = 0;
+            }
+
+            xPipa = xPipa - kecepatanPipa;
+
+            // pipa atas
+            context.fillStyle = "green";
+            context.fillRect(xPipa, 0, lebarPipa, 100);
+            context.fillStyle = "black";
+            context.strokeRect(xPipa, 0, lebarPipa, 100);
+
+            // pipa bawah
+            context.fillStyle = "green";
+            context.fillRect(xPipa, yPipaBawah, lebarPipa, tinggiPipaBawah);
+            context.fillStyle = "black";
+            context.strokeRect(xPipa, yPipaBawah, lebarPipa, tinggiPipaBawah);
+
+            checkCollision();
+
+            if(xBird + lebarPipa >= xPipa && xBird <= xPipa + lebarPipa && yBird >= yPipaBawah && yBird <= tinggiPipaAtas){
+                alert("game over | Score:"+ score);
+            }else if(xBird + lebarPipa >= xPipa && xBird <= xPipa + lebarPipa && yBird <= yPipaBawah && yBird >= tinggiPipaAtas){
+                score = score + 1;
+
+                console.log(score);
+            }
+        },1000/30)
+    </script>
+</body>
+</html>
